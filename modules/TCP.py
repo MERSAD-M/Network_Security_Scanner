@@ -15,6 +15,13 @@ class TCPScanner:
 
         sock = None
 
+        result = {
+            'ip' : ip,
+            'port' : port,
+            'status' : None,
+            'error' : None
+        }
+
         try:
             sock = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
 
@@ -22,26 +29,41 @@ class TCPScanner:
 
             sock.connect(target)
 
-            status = 'open'
+            result['status'] = 'open'
 
-        except ConnectionRefusedError:
-            status = 'closed'
+        except ConnectionRefusedError as e:
+            result['status'] = 'closed'
+            result['error'] = {
+                'type' : 'ConnectionRefusedError',
+                'message' : str(e)
+            }
 
-        except socket.timeout:
-            status = 'timeout'
+        except socket.timeout as e:
+            result['status'] = 'timeout'
+            result['error'] = {
+                'type' : type(e).__name__,
+                'message' : str(e)
+            }
 
-        except OSError:
-            status = 'check network'
+        except OSError as e:
+            result['status'] = 'os error'
+            result['error'] = {
+                'type' :  type(e).__name__,
+                'message' : str(e)
+            }
+        
+        except Exception as e:
+            result['status'] = 'unknown error'
+            result['error'] = {
+                'type' : type(e).__name__,
+                'message' : str(e)
+            }
 
         finally:
             if sock:
                 sock.close()
 
-        return {
-            'ip' : ip,
-            'port' : port,
-            'status' : status
-        }
+        return result
         
     def scan(self, ips, ports=None):            
         targets = list()
@@ -58,6 +80,6 @@ class TCPScanner:
         return open_ports
 
 
-test = TCPScanner(threads=100)
+test = TCPScanner(threads=100 , timeout=3)
 for result in test.scan(ip_handler('192.168.1.1')):
     print(result)
