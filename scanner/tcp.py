@@ -1,6 +1,5 @@
 import socket
 from concurrent.futures import ThreadPoolExecutor
-from target_resolver import ip_handler , port_handler
 
 
 class TCPScanner:
@@ -65,21 +64,12 @@ class TCPScanner:
 
         return result
         
-    def scan(self, ips, ports=None):            
+    def scan(self, ips, ports):            
         targets = list()
-        if ports is None:
-            ports = range(1 , 1024 + 1)
         for ip in ips:
             for port in ports:
                 targets.append((ip , port))
 
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             results = list(executor.map(self.port_scan , targets))
-        
-        open_ports = [result for result in results if result['status'] == 'open']
-        return open_ports
-
-
-test = TCPScanner(threads=100 , timeout=3)
-for result in test.scan(ip_handler('192.168.1.1')):
-    print(result)
+        return results

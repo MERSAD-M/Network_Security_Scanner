@@ -1,4 +1,3 @@
-from target_resolver import ip_handler
 from icmplib import ping
 from icmplib import SocketPermissionError
 from icmplib import DestinationUnreachable
@@ -31,7 +30,7 @@ class HostDiscover:
                 }
 
             else:
-                result['status'] = 'no response'
+                result['status'] = 'no_response'
 
         except DestinationUnreachable as e:
             result['status'] = 'network unreachable'
@@ -68,11 +67,5 @@ class HostDiscover:
 
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             results = list(executor.map(self.host_scan , ips))
-        return [result for result in results if result['status'] == 'Up']
+        return results
 
-
-
-    
-test = HostDiscover(threads=100)
-print(test.scan(ip_handler('192.168.1.0/24')))
-        
