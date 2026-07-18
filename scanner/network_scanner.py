@@ -1,6 +1,6 @@
-from host_discover import HostDiscover
-from target_resolver import ip_handler , port_handler
-from tcp import TCPScanner
+from .host_discover import HostDiscover
+from .target_resolver import ip_handler , port_handler
+from .tcp import TCPScanner
 
 class NetworkScanner:
 
@@ -31,7 +31,3 @@ class NetworkScanner:
         results = [result for result in scan if result['status'] == 'open']
         return results
     
-test = NetworkScanner(count=2 , threads=200)
-for r in test.run('192.168.1.0/24'):
-    print(r)
-
